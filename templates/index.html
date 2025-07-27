@@ -4,115 +4,170 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Semantic Textual Similarity</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <!-- Montserrat Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous">
     <style>
         body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        h1, h2 {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #f8f9fa;
             color: #333;
+            padding: 20px;
+        }
+        h1 {
+            font-weight: 700;
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        h2 {
+            font-weight: 500;
+            color: #34495e;
+            margin-bottom: 20px;
         }
         .section {
             background-color: #fff;
-            padding: 20px;
-            margin-bottom: 20px;
-            border-radius: 5px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 25px;
+            margin-bottom: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
-        input[type="text"] {
-            width: 100%;
-            padding: 8px;
-            margin: 5px 0;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+        .form-control {
+            border-radius: 8px;
+            border: 1px solid #ced4da;
+            padding: 10px;
+            font-size: 1rem;
         }
-        button {
-            padding: 8px 16px;
-            margin: 5px;
+        .btn-primary {
             background-color: #007bff;
-            color: #fff;
             border: none;
-            border-radius: 4px;
-            cursor: pointer;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-weight: 500;
+            transition: background-color 0.3s;
         }
-        button:hover {
+        .btn-primary:hover {
             background-color: #0056b3;
         }
+        .btn-success, .btn-info, .btn-warning {
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-weight: 500;
+        }
         .error {
-            color: red;
-            font-size: 14px;
+            color: #dc3545;
+            font-size: 0.9rem;
+            margin-top: 5px;
         }
         .result {
-            margin-top: 10px;
-            font-size: 16stat16px;
+            margin-top: 15px;
+            font-size: 1rem;
+            background-color: #e9ecef;
+            padding: 15px;
+            border-radius: 8px;
         }
         #batch-pairs-container {
-            margin-top: 10px;
+            margin-top: 15px;
         }
         .pair {
-            margin-bottom: 10px;
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .pair input {
+            flex: 1;
+        }
+        .spinner {
+            display: none;
+            margin-left: 10px;
+        }
+        .form-check-label {
+            margin-left: 5px;
+            font-size: 0.9rem;
         }
     </style>
 </head>
 <body>
-    <h1>Semantic Textual Similarity</h1>
+    <h1><i class="fas fa-brain me-2"></i>Semantic Textual Similarity</h1>
 
     <div class="section">
-        <h2>Single Sentence Pair</h2>
-        <div>
-            <label for="sentence1">Sentence 1</label>
-            <input type="text" id="sentence1" placeholder="Enter first sentence">
+        <h2><i class="fas fa-comment-alt me-2"></i>Single Sentence Pair</h2>
+        <div class="mb-3">
+            <label for="sentence1" class="form-label">Sentence 1</label>
+            <input type="text" class="form-control" id="sentence1" placeholder="Enter first sentence">
         </div>
-        <div>
-            <label for="sentence2">Sentence 2</label>
-            <input type="text" id="sentence2" placeholder="Enter second sentence">
+        <div class="mb-3">
+            <label for="sentence2" class="form-label">Sentence 2</label>
+            <input type="text" class="form-control" id="sentence2" placeholder="Enter second sentence">
         </div>
-        <div>
-            <label><input type="checkbox" id="use-cache-single"> Use Cache</label>
+        <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" id="use-cache-single">
+            <label class="form-check-label" for="use-cache-single"><i class="fas fa-memory me-1"></i>Use Cache</label>
         </div>
-        <button onclick="computeSimilarity()">Compute Similarity</button>
+        <button class="btn btn-primary" onclick="computeSimilarity()">
+            <i class="fas fa-calculator me-2"></i>Compute Similarity
+            <span class="spinner-border spinner-border-sm spinner" role="status" aria-hidden="true"></span>
+        </button>
         <div id="single-result" class="result"></div>
     </div>
 
     <div class="section">
-        <h2>Batch Similarity</h2>
+        <h2><i class="fas fa-comments me-2"></i>Batch Similarity</h2>
         <div id="batch-pairs-container">
             <div class="pair">
-                <input type="text" class="batch-sentence1" placeholder="Sentence 1">
-                <input type="text" class="batch-sentence2" placeholder="Sentence 2">
+                <input type="text" class="form-control batch-sentence1" placeholder="Sentence 1">
+                <input type="text" class="form-control batch-sentence2" placeholder="Sentence 2">
             </div>
         </div>
-        <button onclick="addPair()">Add Pair</button>
-        <div>
-            <label><input type="checkbox" id="use-cache-batch"> Use Cache</label>
+        <button class="btn btn-success" onclick="addPair()"><i class="fas fa-plus me-2"></i>Add Pair</button>
+        <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" id="use-cache-batch">
+            <label class="form-check-label" for="use-cache-batch"><i class="fas fa-memory me-1"></i>Use Cache</label>
         </div>
-        <button onclick="computeBatchSimilarity()">Compute Batch Similarity</button>
+        <button class="btn btn-primary" onclick="computeBatchSimilarity()">
+            <i class="fas fa-calculator me-2"></i>Compute Batch Similarity
+            <span class="spinner-border spinner-border-sm spinner" role="status" aria-hidden="true"></span>
+        </button>
         <div id="batch-result" class="result"></div>
     </div>
 
     <div class="section">
-        <h2>System Controls</h2>
-        <button onclick="clearCache()">Clear Cache</button>
-        <button onclick="viewStatistics()">View Statistics</button>
+        <h2><i class="fas fa-cogs me-2"></i>System Controls</h2>
+        <button class="btn btn-warning" onclick="clearCache()"><i class="fas fa-trash me-2"></i>Clear Cache</button>
+        <button class="btn btn-info" onclick="viewStatistics()"><i class="fas fa-chart-bar me-2"></i>View Statistics</button>
         <div id="stats-result" class="result"></div>
     </div>
 
+    <!-- Bootstrap JS and Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script>
+        function showSpinner(button) {
+            button.querySelector('.spinner').style.display = 'inline-block';
+            button.disabled = true;
+        }
+
+        function hideSpinner(button) {
+            button.querySelector('.spinner').style.display = 'none';
+            button.disabled = false;
+        }
+
         function computeSimilarity() {
             const sentence1 = document.getElementById('sentence1').value.trim();
             const sentence2 = document.getElementById('sentence2').value.trim();
             const useCache = document.getElementById('use-cache-single').checked;
             const resultDiv = document.getElementById('single-result');
+            const button = document.querySelector('#single-result').previousElementSibling;
 
             if (!sentence1 || !sentence2) {
-                resultDiv.innerHTML = '<p class="error">Please enter both sentences.</p>';
+                resultDiv.innerHTML = '<p class="error"><i class="fas fa-exclamation-circle me-1"></i>Please enter both sentences.</p>';
                 return;
             }
 
-            resultDiv.innerHTML = 'Computing...';
+            resultDiv.innerHTML = '<p><i class="fas fa-spinner fa-spin me-1"></i>Computing...</p>';
+            showSpinner(button);
             fetch('/compute_similarity', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -120,14 +175,16 @@
             })
             .then(response => response.json())
             .then(data => {
+                hideSpinner(button);
                 if (data.error) {
-                    resultDiv.innerHTML = `<p class="error">${data.error}</p>`;
+                    resultDiv.innerHTML = `<p class="error"><i class="fas fa-exclamation-circle me-1"></i>${data.error}</p>`;
                 } else {
-                    resultDiv.innerHTML = `<p>Similarity: ${data.similarity.toFixed(4)}</p>`;
+                    resultDiv.innerHTML = `<p><i class="fas fa-check-circle me-1"></i>Similarity: ${data.similarity.toFixed(4)}</p>`;
                 }
             })
             .catch(error => {
-                resultDiv.innerHTML = `<p class="error">Error: ${error.message}</p>`;
+                hideSpinner(button);
+                resultDiv.innerHTML = `<p class="error"><i class="fas fa-exclamation-circle me-1"></i>Error: ${error.message}</p>`;
             });
         }
 
@@ -136,8 +193,8 @@
             const pairDiv = document.createElement('div');
             pairDiv.className = 'pair';
             pairDiv.innerHTML = `
-                <input type="text" class="batch-sentence1" placeholder="Sentence 1">
-                <input type="text" class="batch-sentence2" placeholder="Sentence 2">
+                <input type="text" class="form-control batch-sentence1" placeholder="Sentence 1">
+                <input type="text" class="form-control batch-sentence2" placeholder="Sentence 2">
             `;
             container.appendChild(pairDiv);
         }
@@ -147,6 +204,7 @@
             const pairDivs = document.getElementsByClassName('pair');
             const useCache = document.getElementById('use-cache-batch').checked;
             const resultDiv = document.getElementById('batch-result');
+            const button = document.querySelector('#batch-result').previousElementSibling;
 
             for (let pair of pairDivs) {
                 const sentence1 = pair.querySelector('.batch-sentence1').value.trim();
@@ -157,11 +215,12 @@
             }
 
             if (pairs.length === 0) {
-                resultDiv.innerHTML = '<p class="error">Please enter at least one valid sentence pair.</p>';
+                resultDiv.innerHTML = '<p class="error"><i class="fas fa-exclamation-circle me-1"></i>Please enter at least one valid sentence pair.</p>';
                 return;
             }
 
-            resultDiv.innerHTML = 'Computing...';
+            resultDiv.innerHTML = '<p><i class="fas fa-spinner fa-spin me-1"></i>Computing...</p>';
+            showSpinner(button);
             fetch('/compute_batch_similarity', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -169,46 +228,58 @@
             })
             .then(response => response.json())
             .then(data => {
+                hideSpinner(button);
                 if (data.error) {
-                    resultDiv.innerHTML = `<p class="error">${data.error}</p>`;
+                    resultDiv.innerHTML = `<p class="error"><i class="fas fa-exclamation-circle me-1"></i>${data.error}</p>`;
                 } else {
-                    let output = '<h3>Batch Results:</h3>';
+                    let output = '<h3><i class="fas fa-list me-1"></i>Batch Results:</h3>';
                     data.results.forEach(result => {
-                        output += `<p>"${result.sentence1}" vs "${result.sentence2}": ${result.similarity.toFixed(4)}</p>`;
+                        output += `<p>"${result.sentence1}" vs "${result.sentence2}": <strong>${result.similarity.toFixed(4)}</strong></p>`;
                     });
                     resultDiv.innerHTML = output;
                 }
             })
             .catch(error => {
-                resultDiv.innerHTML = `<p class="error">Error: ${error.message}</p>`;
+                hideSpinner(button);
+                resultDiv.innerHTML = `<p class="error"><i class="fas fa-exclamation-circle me-1"></i>Error: ${error.message}</p>`;
             });
         }
 
         function clearCache() {
             const statsDiv = document.getElementById('stats-result');
+            const button = document.querySelector('#stats-result').previousElementSibling.previousElementSibling;
+            statsDiv.innerHTML = '<p><i class="fas fa-spinner fa-spin me-1"></i>Clearing cache...</p>';
+            showSpinner(button);
             fetch('/clear_cache', { method: 'POST' })
                 .then(response => response.json())
                 .then(data => {
-                    statsDiv.innerHTML = `<p>${data.message}</p>`;
+                    hideSpinner(button);
+                    statsDiv.innerHTML = `<p><i class="fas fa-check-circle me-1"></i>${data.message}</p>`;
                 })
                 .catch(error => {
-                    statsDiv.innerHTML = `<p class="error">Error: ${error.message}</p>`;
+                    hideSpinner(button);
+                    statsDiv.innerHTML = `<p class="error"><i class="fas fa-exclamation-circle me-1"></i>Error: ${error.message}</p>`;
                 });
         }
 
         function viewStatistics() {
             const statsDiv = document.getElementById('stats-result');
+            const button = document.querySelector('#stats-result').previousElementSibling;
+            statsDiv.innerHTML = '<p><i class="fas fa-spinner fa-spin me-1"></i>Loading statistics...</p>';
+            showSpinner(button);
             fetch('/statistics')
                 .then(response => response.json())
                 .then(data => {
+                    hideSpinner(button);
                     statsDiv.innerHTML = `
-                        <p>Single Pair Computations: ${data.single_pair_computations}</p>
-                        <p>Batch Computations: ${data.batch_computations}</p>
-                        <p>Total Processing Time: ${data.total_time.toFixed(2)} seconds</p>
+                        <p><i class="fas fa-calculator me-1"></i>Single Pair Computations: ${data.single_pair_computations}</p>
+                        <p><i class="fas fa-list-alt me-1"></i>Batch Computations: ${data.batch_computations}</p>
+                        <p><i class="fas fa-clock me-1"></i>Total Processing Time: ${data.total_time.toFixed(2)} seconds</p>
                     `;
                 })
                 .catch(error => {
-                    statsDiv.innerHTML = `<p class="error">Error: ${error.message}</p>`;
+                    hideSpinner(button);
+                    statsDiv.innerHTML = `<p class="error"><i class="fas fa-exclamation-circle me-1"></i>Error: ${error.message}</p>`;
                 });
         }
     </script>
