@@ -6,7 +6,7 @@ import time
 from functools import lru_cache
 import logging
 
-app = Flask(__name__)  # Must be named 'app'
+app = Flask(__name__) 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
