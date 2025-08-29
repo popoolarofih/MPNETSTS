@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Semantic Textual Similarity</title>
+    <title>Multimedia Similarity and Deduplication</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <!-- Montserrat Font -->
@@ -69,9 +69,6 @@
             padding: 15px;
             border-radius: 8px;
         }
-        #batch-pairs-container {
-            margin-top: 15px;
-        }
         .pair {
             display: flex;
             gap: 10px;
@@ -88,13 +85,16 @@
             margin-left: 5px;
             font-size: 0.9rem;
         }
+        textarea.form-control {
+            resize: vertical;
+        }
     </style>
 </head>
 <body>
-    <h1><i class="fas fa-brain me-2"></i>Semantic Textual Similarity</h1>
+    <h1><i class="fas fa-brain me-2"></i>Multimedia Similarity and Deduplication</h1>
 
     <div class="section">
-        <h2><i class="fas fa-comment-alt me-2"></i>Single Sentence Pair</h2>
+        <h2><i class="fas fa-comment-alt me-2"></i>Textual Similarity</h2>
         <div class="mb-3">
             <label for="sentence1" class="form-label">Sentence 1</label>
             <input type="text" class="form-control" id="sentence1" placeholder="Enter first sentence">
@@ -115,23 +115,147 @@
     </div>
 
     <div class="section">
-        <h2><i class="fas fa-comments me-2"></i>Batch Similarity</h2>
-        <div id="batch-pairs-container">
+        <h2><i class="fas fa-comments me-2"></i>Batch Text Similarity</h2>
+        <div id="text-pairs-container">
             <div class="pair">
                 <input type="text" class="form-control batch-sentence1" placeholder="Sentence 1">
                 <input type="text" class="form-control batch-sentence2" placeholder="Sentence 2">
             </div>
         </div>
-        <button class="btn btn-success" onclick="addPair()"><i class="fas fa-plus me-2"></i>Add Pair</button>
+        <button class="btn btn-success" onclick="addTextPair()"><i class="fas fa-plus me-2"></i>Add Pair</button>
         <div class="form-check mb-3">
-            <input class="form-check-input" type="checkbox" id="use-cache-batch">
-            <label class="form-check-label" for="use-cache-batch"><i class="fas fa-memory me-1"></i>Use Cache</label>
+            <input class="form-check-input" type="checkbox" id="use-cache-text-batch">
+            <label class="form-check-label" for="use-cache-text-batch"><i class="fas fa-memory me-1"></i>Use Cache</label>
         </div>
-        <button class="btn btn-primary" onclick="computeBatchSimilarity()">
+        <button class="btn btn-primary" onclick="computeBatchTextSimilarity()">
             <i class="fas fa-calculator me-2"></i>Compute Batch Similarity
             <span class="spinner-border spinner-border-sm spinner" role="status" aria-hidden="true"></span>
         </button>
-        <div id="batch-result" class="result"></div>
+        <div id="text-batch-result" class="result"></div>
+    </div>
+
+    <div class="section">
+        <h2><i class="fas fa-image me-2"></i>Image Similarity</h2>
+        <div class="mb-3">
+            <label for="image1" class="form-label">Image 1 URL</label>
+            <input type="text" class="form-control" id="image1" placeholder="Enter first image URL">
+        </div>
+        <div class="mb-3">
+            <label for="image2" class="form-label">Image 2 URL</label>
+            <input type="text" class="form-control" id="image2" placeholder="Enter second image URL">
+        </div>
+        <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" id="use-cache-image">
+            <label class="form-check-label" for="use-cache-image"><i class="fas fa-memory me-1"></i>Use Cache</label>
+        </div>
+        <button class="btn btn-primary" onclick="computeImageSimilarity()">
+            <i class="fas fa-calculator me-2"></i>Compute Similarity
+            <span class="spinner-border spinner-border-sm spinner" role="status" aria-hidden="true"></span>
+        </button>
+        <div id="image-result" class="result"></div>
+    </div>
+
+    <div class="section">
+        <h2><i class="fas fa-images me-2"></i>Batch Image Similarity</h2>
+        <div id="image-pairs-container">
+            <div class="pair">
+                <input type="text" class="form-control batch-image1" placeholder="Image URL 1">
+                <input type="text" class="form-control batch-image2" placeholder="Image URL 2">
+            </div>
+        </div>
+        <button class="btn btn-success" onclick="addImagePair()"><i class="fas fa-plus me-2"></i>Add Pair</button>
+        <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" id="use-cache-image-batch">
+            <label class="form-check-label" for="use-cache-image-batch"><i class="fas fa-memory me-1"></i>Use Cache</label>
+        </div>
+        <button class="btn btn-primary" onclick="computeBatchImageSimilarity()">
+            <i class="fas fa-calculator me-2"></i>Compute Batch Similarity
+            <span class="spinner-border spinner-border-sm spinner" role="status" aria-hidden="true"></span>
+        </button>
+        <div id="image-batch-result" class="result"></div>
+    </div>
+
+    <div class="section">
+        <h2><i class="fas fa-compress-arrows-alt me-2"></i>Image Deduplication</h2>
+        <div class="mb-3">
+            <label for="image-urls" class="form-label">Image URLs (one per line)</label>
+            <textarea class="form-control" id="image-urls" rows="5" placeholder="Enter image URLs, one per line"></textarea>
+        </div>
+        <div class="mb-3">
+            <label for="threshold-image" class="form-label">Similarity Threshold</label>
+            <input type="number" class="form-control" id="threshold-image" value="0.9" step="0.01" min="0" max="1">
+        </div>
+        <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" id="use-cache-dedup-image">
+            <label class="form-check-label" for="use-cache-dedup-image"><i class="fas fa-memory me-1"></i>Use Cache</label>
+        </div>
+        <button class="btn btn-primary" onclick="dedupImages()">
+            <i class="fas fa-compress me-2"></i>Deduplicate
+            <span class="spinner-border spinner-border-sm spinner" role="status" aria-hidden="true"></span>
+        </button>
+        <div id="dedup-image-result" class="result"></div>
+    </div>
+
+    <div class="section">
+        <h2><i class="fas fa-video me-2"></i>Video Similarity</h2>
+        <div class="mb-3">
+            <label for="video1" class="form-label">Video 1 URL</label>
+            <input type="text" class="form-control" id="video1" placeholder="Enter first video URL">
+        </div>
+        <div class="mb-3">
+            <label for="video2" class="form-label">Video 2 URL</label>
+            <input type="text" class="form-control" id="video2" placeholder="Enter second video URL">
+        </div>
+        <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" id="use-cache-video">
+            <label class="form-check-label" for="use-cache-video"><i class="fas fa-memory me-1"></i>Use Cache</label>
+        </div>
+        <button class="btn btn-primary" onclick="computeVideoSimilarity()">
+            <i class="fas fa-calculator me-2"></i>Compute Similarity
+            <span class="spinner-border spinner-border-sm spinner" role="status" aria-hidden="true"></span>
+        </button>
+        <div id="video-result" class="result"></div>
+    </div>
+
+    <div class="section">
+        <h2><i class="fas fa-videos me-2"></i>Batch Video Similarity</h2>
+        <div id="video-pairs-container">
+            <div class="pair">
+                <input type="text" class="form-control batch-video1" placeholder="Video URL 1">
+                <input type="text" class="form-control batch-video2" placeholder="Video URL 2">
+            </div>
+        </div>
+        <button class="btn btn-success" onclick="addVideoPair()"><i class="fas fa-plus me-2"></i>Add Pair</button>
+        <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" id="use-cache-video-batch">
+            <label class="form-check-label" for="use-cache-video-batch"><i class="fas fa-memory me-1"></i>Use Cache</label>
+        </div>
+        <button class="btn btn-primary" onclick="computeBatchVideoSimilarity()">
+            <i class="fas fa-calculator me-2"></i>Compute Batch Similarity
+            <span class="spinner-border spinner-border-sm spinner" role="status" aria-hidden="true"></span>
+        </button>
+        <div id="video-batch-result" class="result"></div>
+    </div>
+
+    <div class="section">
+        <h2><i class="fas fa-compress-arrows-alt me-2"></i>Video Deduplication</h2>
+        <div class="mb-3">
+            <label for="video-urls" class="form-label">Video URLs (one per line)</label>
+            <textarea class="form-control" id="video-urls" rows="5" placeholder="Enter video URLs, one per line"></textarea>
+        </div>
+        <div class="mb-3">
+            <label for="threshold-video" class="form-label">Similarity Threshold</label>
+            <input type="number" class="form-control" id="threshold-video" value="0.9" step="0.01" min="0" max="1">
+        </div>
+        <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" id="use-cache-dedup-video">
+            <label class="form-check-label" for="use-cache-dedup-video"><i class="fas fa-memory me-1"></i>Use Cache</label>
+        </div>
+        <button class="btn btn-primary" onclick="dedupVideos()">
+            <i class="fas fa-compress me-2"></i>Deduplicate
+            <span class="spinner-border spinner-border-sm spinner" role="status" aria-hidden="true"></span>
+        </button>
+        <div id="dedup-video-result" class="result"></div>
     </div>
 
     <div class="section">
@@ -188,8 +312,8 @@
             });
         }
 
-        function addPair() {
-            const container = document.getElementById('batch-pairs-container');
+        function addTextPair() {
+            const container = document.getElementById('text-pairs-container');
             const pairDiv = document.createElement('div');
             pairDiv.className = 'pair';
             pairDiv.innerHTML = `
@@ -199,12 +323,12 @@
             container.appendChild(pairDiv);
         }
 
-        function computeBatchSimilarity() {
+        function computeBatchTextSimilarity() {
             const pairs = [];
             const pairDivs = document.getElementsByClassName('pair');
-            const useCache = document.getElementById('use-cache-batch').checked;
-            const resultDiv = document.getElementById('batch-result');
-            const button = document.querySelector('#batch-result').previousElementSibling;
+            const useCache = document.getElementById('use-cache-text-batch').checked;
+            const resultDiv = document.getElementById('text-batch-result');
+            const button = document.querySelector('#text-batch-result').previousElementSibling;
 
             for (let pair of pairDivs) {
                 const sentence1 = pair.querySelector('.batch-sentence1').value.trim();
@@ -245,6 +369,276 @@
             });
         }
 
+        function computeImageSimilarity() {
+            const url1 = document.getElementById('image1').value.trim();
+            const url2 = document.getElementById('image2').value.trim();
+            const useCache = document.getElementById('use-cache-image').checked;
+            const resultDiv = document.getElementById('image-result');
+            const button = document.querySelector('#image-result').previousElementSibling;
+
+            if (!url1 || !url2) {
+                resultDiv.innerHTML = '<p class="error"><i class="fas fa-exclamation-circle me-1"></i>Please enter both image URLs.</p>';
+                return;
+            }
+
+            resultDiv.innerHTML = '<p><i class="fas fa-spinner fa-spin me-1"></i>Computing...</p>';
+            showSpinner(button);
+            fetch('/compute_image_similarity', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url1, url2, use_cache: useCache })
+            })
+            .then(response => response.json())
+            .then(data => {
+                hideSpinner(button);
+                if (data.error) {
+                    resultDiv.innerHTML = `<p class="error"><i class="fas fa-exclamation-circle me-1"></i>${data.error}</p>`;
+                } else {
+                    resultDiv.innerHTML = `<p><i class="fas fa-check-circle me-1"></i>Similarity: ${data.similarity.toFixed(4)}</p>`;
+                }
+            })
+            .catch(error => {
+                hideSpinner(button);
+                resultDiv.innerHTML = `<p class="error"><i class="fas fa-exclamation-circle me-1"></i>Error: ${error.message}</p>`;
+            });
+        }
+
+        function addImagePair() {
+            const container = document.getElementById('image-pairs-container');
+            const pairDiv = document.createElement('div');
+            pairDiv.className = 'pair';
+            pairDiv.innerHTML = `
+                <input type="text" class="form-control batch-image1" placeholder="Image URL 1">
+                <input type="text" class="form-control batch-image2" placeholder="Image URL 2">
+            `;
+            container.appendChild(pairDiv);
+        }
+
+        function computeBatchImageSimilarity() {
+            const pairs = [];
+            const pairDivs = document.querySelectorAll('#image-pairs-container .pair');
+            const useCache = document.getElementById('use-cache-image-batch').checked;
+            const resultDiv = document.getElementById('image-batch-result');
+            const button = document.querySelector('#image-batch-result').previousElementSibling;
+
+            for (let pair of pairDivs) {
+                const url1 = pair.querySelector('.batch-image1').value.trim();
+                const url2 = pair.querySelector('.batch-image2').value.trim();
+                if (url1 && url2) {
+                    pairs.push({ url1, url2 });
+                }
+            }
+
+            if (pairs.length === 0) {
+                resultDiv.innerHTML = '<p class="error"><i class="fas fa-exclamation-circle me-1"></i>Please enter at least one valid image URL pair.</p>';
+                return;
+            }
+
+            resultDiv.innerHTML = '<p><i class="fas fa-spinner fa-spin me-1"></i>Computing...</p>';
+            showSpinner(button);
+            fetch('/compute_batch_image_similarity', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ pairs, use_cache: useCache })
+            })
+            .then(response => response.json())
+            .then(data => {
+                hideSpinner(button);
+                if (data.error) {
+                    resultDiv.innerHTML = `<p class="error"><i class="fas fa-exclamation-circle me-1"></i>${data.error}</p>`;
+                } else {
+                    let output = '<h3><i class="fas fa-list me-1"></i>Batch Results:</h3>';
+                    data.results.forEach(result => {
+                        output += `<p>"${result.url1}" vs "${result.url2}": <strong>${result.similarity.toFixed(4)}</strong></p>`;
+                    });
+                    resultDiv.innerHTML = output;
+                }
+            })
+            .catch(error => {
+                hideSpinner(button);
+                resultDiv.innerHTML = `<p class="error"><i class="fas fa-exclamation-circle me-1"></i>Error: ${error.message}</p>`;
+            });
+        }
+
+        function dedupImages() {
+            const urlsText = document.getElementById('image-urls').value.trim();
+            const urls = urlsText.split('\n').filter(u => u.trim());
+            const threshold = parseFloat(document.getElementById('threshold-image').value);
+            const useCache = document.getElementById('use-cache-dedup-image').checked;
+            const resultDiv = document.getElementById('dedup-image-result');
+            const button = document.querySelector('#dedup-image-result').previousElementSibling;
+
+            if (urls.length < 2) {
+                resultDiv.innerHTML = '<p class="error"><i class="fas fa-exclamation-circle me-1"></i>Please enter at least two image URLs.</p>';
+                return;
+            }
+
+            resultDiv.innerHTML = '<p><i class="fas fa-spinner fa-spin me-1"></i>Deduplicating...</p>';
+            showSpinner(button);
+            fetch('/dedup_images', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ urls, threshold, use_cache: useCache })
+            })
+            .then(response => response.json())
+            .then(data => {
+                hideSpinner(button);
+                if (data.error) {
+                    resultDiv.innerHTML = `<p class="error"><i class="fas fa-exclamation-circle me-1"></i>${data.error}</p>`;
+                } else {
+                    let output = `<p><i class="fas fa-check-circle me-1"></i>Removed: ${data.removed}</p>`;
+                    output += '<h3>Unique Images:</h3>';
+                    data.unique.forEach(url => {
+                        output += `<p>${url}</p>`;
+                    });
+                    output += '<h3>Duplicate Groups:</h3>';
+                    data.groups.forEach((group, idx) => {
+                        output += `<p>Group ${idx + 1}: ${group.join(', ')}</p>`;
+                    });
+                    resultDiv.innerHTML = output;
+                }
+            })
+            .catch(error => {
+                hideSpinner(button);
+                resultDiv.innerHTML = `<p class="error"><i class="fas fa-exclamation-circle me-1"></i>Error: ${error.message}</p>`;
+            });
+        }
+
+        function computeVideoSimilarity() {
+            const url1 = document.getElementById('video1').value.trim();
+            const url2 = document.getElementById('video2').value.trim();
+            const useCache = document.getElementById('use-cache-video').checked;
+            const resultDiv = document.getElementById('video-result');
+            const button = document.querySelector('#video-result').previousElementSibling;
+
+            if (!url1 || !url2) {
+                resultDiv.innerHTML = '<p class="error"><i class="fas fa-exclamation-circle me-1"></i>Please enter both video URLs.</p>';
+                return;
+            }
+
+            resultDiv.innerHTML = '<p><i class="fas fa-spinner fa-spin me-1"></i>Computing...</p>';
+            showSpinner(button);
+            fetch('/compute_video_similarity', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url1, url2, use_cache: useCache })
+            })
+            .then(response => response.json())
+            .then(data => {
+                hideSpinner(button);
+                if (data.error) {
+                    resultDiv.innerHTML = `<p class="error"><i class="fas fa-exclamation-circle me-1"></i>${data.error}</p>`;
+                } else {
+                    resultDiv.innerHTML = `<p><i class="fas fa-check-circle me-1"></i>Similarity: ${data.similarity.toFixed(4)}</p>`;
+                }
+            })
+            .catch(error => {
+                hideSpinner(button);
+                resultDiv.innerHTML = `<p class="error"><i class="fas fa-exclamation-circle me-1"></i>Error: ${error.message}</p>`;
+            });
+        }
+
+        function addVideoPair() {
+            const container = document.getElementById('video-pairs-container');
+            const pairDiv = document.createElement('div');
+            pairDiv.className = 'pair';
+            pairDiv.innerHTML = `
+                <input type="text" class="form-control batch-video1" placeholder="Video URL 1">
+                <input type="text" class="form-control batch-video2" placeholder="Video URL 2">
+            `;
+            container.appendChild(pairDiv);
+        }
+
+        function computeBatchVideoSimilarity() {
+            const pairs = [];
+            const pairDivs = document.querySelectorAll('#video-pairs-container .pair');
+            const useCache = document.getElementById('use-cache-video-batch').checked;
+            const resultDiv = document.getElementById('video-batch-result');
+            const button = document.querySelector('#video-batch-result').previousElementSibling;
+
+            for (let pair of pairDivs) {
+                const url1 = pair.querySelector('.batch-video1').value.trim();
+                const url2 = pair.querySelector('.batch-video2').value.trim();
+                if (url1 && url2) {
+                    pairs.push({ url1, url2 });
+                }
+            }
+
+            if (pairs.length === 0) {
+                resultDiv.innerHTML = '<p class="error"><i class="fas fa-exclamation-circle me-1"></i>Please enter at least one valid video URL pair.</p>';
+                return;
+            }
+
+            resultDiv.innerHTML = '<p><i class="fas fa-spinner fa-spin me-1"></i>Computing...</p>';
+            showSpinner(button);
+            fetch('/compute_batch_video_similarity', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ pairs, use_cache: useCache })
+            })
+            .then(response => response.json())
+            .then(data => {
+                hideSpinner(button);
+                if (data.error) {
+                    resultDiv.innerHTML = `<p class="error"><i class="fas fa-exclamation-circle me-1"></i>${data.error}</p>`;
+                } else {
+                    let output = '<h3><i class="fas fa-list me-1"></i>Batch Results:</h3>';
+                    data.results.forEach(result => {
+                        output += `<p>"${result.url1}" vs "${result.url2}": <strong>${result.similarity.toFixed(4)}</strong></p>`;
+                    });
+                    resultDiv.innerHTML = output;
+                }
+            })
+            .catch(error => {
+                hideSpinner(button);
+                resultDiv.innerHTML = `<p class="error"><i class="fas fa-exclamation-circle me-1"></i>Error: ${error.message}</p>`;
+            });
+        }
+
+        function dedupVideos() {
+            const urlsText = document.getElementById('video-urls').value.trim();
+            const urls = urlsText.split('\n').filter(u => u.trim());
+            const threshold = parseFloat(document.getElementById('threshold-video').value);
+            const useCache = document.getElementById('use-cache-dedup-video').checked;
+            const resultDiv = document.getElementById('dedup-video-result');
+            const button = document.querySelector('#dedup-video-result').previousElementSibling;
+
+            if (urls.length < 2) {
+                resultDiv.innerHTML = '<p class="error"><i class="fas fa-exclamation-circle me-1"></i>Please enter at least two video URLs.</p>';
+                return;
+            }
+
+            resultDiv.innerHTML = '<p><i class="fas fa-spinner fa-spin me-1"></i>Deduplicating...</p>';
+            showSpinner(button);
+            fetch('/dedup_videos', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ urls, threshold, use_cache: useCache })
+            })
+            .then(response => response.json())
+            .then(data => {
+                hideSpinner(button);
+                if (data.error) {
+                    resultDiv.innerHTML = `<p class="error"><i class="fas fa-exclamation-circle me-1"></i>${data.error}</p>`;
+                } else {
+                    let output = `<p><i class="fas fa-check-circle me-1"></i>Removed: ${data.removed}</p>`;
+                    output += '<h3>Unique Videos:</h3>';
+                    data.unique.forEach(url => {
+                        output += `<p>${url}</p>`;
+                    });
+                    output += '<h3>Duplicate Groups:</h3>';
+                    data.groups.forEach((group, idx) => {
+                        output += `<p>Group ${idx + 1}: ${group.join(', ')}</p>`;
+                    });
+                    resultDiv.innerHTML = output;
+                }
+            })
+            .catch(error => {
+                hideSpinner(button);
+                resultDiv.innerHTML = `<p class="error"><i class="fas fa-exclamation-circle me-1"></i>Error: ${error.message}</p>`;
+            });
+        }
+
         function clearCache() {
             const statsDiv = document.getElementById('stats-result');
             const button = document.querySelector('#stats-result').previousElementSibling.previousElementSibling;
@@ -272,8 +666,14 @@
                 .then(data => {
                     hideSpinner(button);
                     statsDiv.innerHTML = `
-                        <p><i class="fas fa-calculator me-1"></i>Single Pair Computations: ${data.single_pair_computations}</p>
-                        <p><i class="fas fa-list-alt me-1"></i>Batch Computations: ${data.batch_computations}</p>
+                        <p><i class="fas fa-calculator me-1"></i>Text Single Pair Computations: ${data.text_single_pair_computations}</p>
+                        <p><i class="fas fa-list-alt me-1"></i>Text Batch Computations: ${data.text_batch_computations}</p>
+                        <p><i class="fas fa-image me-1"></i>Image Single Pair Computations: ${data.image_single_pair_computations}</p>
+                        <p><i class="fas fa-images me-1"></i>Image Batch Computations: ${data.image_batch_computations}</p>
+                        <p><i class="fas fa-video me-1"></i>Video Single Pair Computations: ${data.video_single_pair_computations}</p>
+                        <p><i class="fas fa-videos me-1"></i>Video Batch Computations: ${data.video_batch_computations}</p>
+                        <p><i class="fas fa-compress-arrows-alt me-1"></i>Image Dedup Computations: ${data.image_dedup_computations}</p>
+                        <p><i class="fas fa-compress-arrows-alt me-1"></i>Video Dedup Computations: ${data.video_dedup_computations}</p>
                         <p><i class="fas fa-clock me-1"></i>Total Processing Time: ${data.total_time.toFixed(2)} seconds</p>
                     `;
                 })
